@@ -10,4 +10,4 @@ when it is inserted again.
 
 ## Supported hardware
 
-    - all Yubikey having an USB interface (with challenge-response configured slot)
+  - all Yubikey having an USB interface (with challenge-response configured slot)

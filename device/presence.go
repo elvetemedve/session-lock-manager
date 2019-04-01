@@ -6,15 +6,20 @@ import (
     "io"
 )
 
-func Scan(out io.Writer, scanner Scanner) (context.CancelFunc, chan bool) {
+type Presence struct {
+    OnInsert func()
+    OnEject func()
+}
+
+func (presence *Presence) Scan(out io.Writer, scanner Scanner) (context.CancelFunc, chan bool) {
     eventChannel, cancel := scanner.Scan()
     done := make(chan bool)
-    go listen(out, eventChannel, done)
+    go presence.listen(out, eventChannel, done)
 
     return cancel, done
 }
 
-func listen(out io.Writer, eventChannel <-chan *SecurityTokenEvent, done chan<- bool) {
+func (presence *Presence) listen(out io.Writer, eventChannel <-chan *SecurityTokenEvent, done chan<- bool) {
     fmt.Fprintln(out, "Started listening on channel.")
 
     // Enumerate device events
@@ -26,8 +31,10 @@ func listen(out io.Writer, eventChannel <-chan *SecurityTokenEvent, done chan<- 
         switch event.action {
         case insert:
             fmt.Fprintln(out, "USB device inserted.")
+            presence.OnInsert()
         case eject:
             fmt.Fprintln(out, "USB device ejected.")
+            presence.OnEject()
         }
     }
 

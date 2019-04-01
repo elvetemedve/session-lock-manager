@@ -8,6 +8,7 @@ import (
 
 func main() {
     scanner := &device.UdevScanner{&udev.Udev{}}
-    _, done := device.Scan(os.Stdout, scanner)
+    presence := &device.Presence{func(){}, func(){}}
+    _, done := presence.Scan(os.Stdout, scanner)
     <-done
 }

@@ -6,8 +6,6 @@ import (
     "io"
 )
 
-const yubikeyDeviceId = "1050/407/511";
-
 func Scan(out io.Writer, scanner Scanner) (context.CancelFunc, chan bool) {
     eventChannel, cancel := scanner.Scan()
     done := make(chan bool)
@@ -21,7 +19,7 @@ func listen(out io.Writer, eventChannel <-chan *SecurityTokenEvent, done chan<- 
 
     // Enumerate device events
     for event := range eventChannel {
-        if (yubikeyDeviceId != event.deviceId) {
+        if (!devices.IsSupported(event.deviceId)) {
             continue
         }
 

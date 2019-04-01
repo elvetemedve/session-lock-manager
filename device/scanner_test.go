@@ -4,6 +4,7 @@ import "context"
 
 type FakeScanner struct {
     events []SecurityTokenEvent
+    closeWhenAllEventsAreScanned bool
 }
 
 func (scanner *FakeScanner) Scan() (<-chan *SecurityTokenEvent, context.CancelFunc) {
@@ -20,6 +21,9 @@ func (scanner *FakeScanner) Scan() (<-chan *SecurityTokenEvent, context.CancelFu
 func (scanner *FakeScanner) readEvents(eventChannel chan *SecurityTokenEvent) {
     for _, event := range scanner.events {
         eventChannel <- &event
+    }
+    if (scanner.closeWhenAllEventsAreScanned) {
+        close(eventChannel)
     }
 }
 

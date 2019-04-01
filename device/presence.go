@@ -27,9 +27,9 @@ func listen(out io.Writer, eventChannel <-chan *SecurityTokenEvent, done chan<- 
 
         switch event.action {
         case insert:
-            fmt.Println("USB device inserted.")
+            fmt.Fprintln(out, "USB device inserted.")
         case eject:
-            fmt.Println("USB device ejected.")
+            fmt.Fprintln(out, "USB device ejected.")
         }
     }
 

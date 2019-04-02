@@ -1,16 +1,14 @@
 package authentication
 
-import "fmt"
-
-var AuthenticateCurrentUserAction = func (serviceName string) func() {
+var AuthenticateCurrentUserAction = func (serviceName string, success func(), failure func()) func() {
     return func() {
         pamAuthenticator := &PamAuthenticator{serviceName}
         userProvider := &CurrentUserProvider{}
         authenticator := &OsCurrentUserAuthenticator{pamAuthenticator, userProvider}
         if (authenticator.IsAuthenticated()) {
-            fmt.Println("Authentication success.")
+            success()
         } else {
-            fmt.Println("Authentication failed.")
+            failure()
         }
     }
 }

@@ -12,8 +12,12 @@ func main() {
     serviceName := parseArguments()
     scanner := &device.UdevScanner{&udev.Udev{}}
     presence := &device.Presence{
-        authentication.AuthenticateCurrentUserAction(serviceName),
+        authentication.AuthenticateCurrentUserAction(serviceName,
+            func(){
+                fmt.Println("Unlocking session.")
+            }, func(){}),
         func(){
+            fmt.Println("Locking session.")
         }}
     _, done := presence.Scan(os.Stdout, scanner)
     <-done

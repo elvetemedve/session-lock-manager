@@ -5,14 +5,25 @@ import (
     "github.com/elvetemedve/session-lock-manager/authentication"
     "github.com/jochenvg/go-udev"
     "os"
+    "fmt"
 )
 
 func main() {
+    serviceName := parseArguments()
     scanner := &device.UdevScanner{&udev.Udev{}}
     presence := &device.Presence{
-        authentication.AuthenticateCurrentUserAction("session-locker"),
+        authentication.AuthenticateCurrentUserAction(serviceName),
         func(){
         }}
     _, done := presence.Scan(os.Stdout, scanner)
     <-done
+}
+
+func parseArguments() (string) {
+    if len(os.Args) != 2 {
+        fmt.Fprintln(os.Stderr, "Insufficient arguments given.")
+        os.Exit(1)
+    }
+
+    return os.Args[1]
 }

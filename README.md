@@ -42,15 +42,21 @@ Create a file like `/etc/pam.d/session-locker` with the content below:
     auth		required	pam_yubico.so mode=challenge-response
 Now use the Yubikey configuration tool to setup a slot for challenge-response authentication without user presence.
 
-## Known issues
+### Polkit
 
-   1. The application cannot be run as regular user on systems where polkit service is installed, because session locking, unlocking requires root privileges. See `/usr/share/polkit-1/actions/org.freedesktop.login1.policy` **org.freedesktop.login1.lock-sessions** section.
+If your Linux desktop has Polkit installed to control system-wide privileges, then you need to configure it to allow locking/unlocking the session as regular user,
+because the session lock manager should not to be run as root. The simplest way to achieve this is to add your user into a new group who is trusted to lock/unlock session.
+The following example assumes that the user is added to the **wheel** group.
 
-   To fix this, edit the policy file and find the XML node `<action id="org.freedesktop.login1.lock-sessions">`. Under that node change the `<default>` node to be like below:
-   ```
-   <defaults>
-        <allow_any>yes</allow_any>
-        <allow_inactive>auth_admin_keep</allow_inactive>
-        <allow_active>yes</allow_active>
-    </defaults>
-    ```
+Create the file `/etc/polkit-1/rules.d/49-sesson-lock-manager.rules` with the content below:
+
+    /* Allow members of the wheel group to execute the defined actions
+     * without password authentication, similar to "sudo NOPASSWD:"
+     */
+    polkit.addRule(function(action, subject) {
+        if (action.id == "org.freedesktop.login1.lock-sessions" &&
+            subject.isInGroup("wheel"))
+        {
+            return polkit.Result.YES;
+        }
+    });

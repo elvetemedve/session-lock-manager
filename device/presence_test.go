@@ -1,83 +1,83 @@
 package device
 
 import (
-    "testing"
-    "strings"
-    "bytes"
-    "time"
+	"bytes"
+	"strings"
+	"testing"
+	"time"
 )
 
 func TestMonitoringIsStarted(t *testing.T) {
-    presence := &Presence{}
-    buffer := &bytes.Buffer{}
-    scanner := &FakeScanner{make([]SecurityTokenEvent, 0), true}
+	presence := &Presence{}
+	buffer := &bytes.Buffer{}
+	scanner := &FakeScanner{make([]SecurityTokenEvent, 0), true}
 
-    _, done := presence.Scan(buffer, scanner)
-    <-done
+	_, done := presence.Scan(buffer, scanner)
+	<-done
 
-    got := buffer.String()
-    want := "Started listening on channel."
+	got := buffer.String()
+	want := "Started listening on channel."
 
-    if !strings.Contains(got, want) {
-        t.Errorf("The output does not contain the text: '%s' Got: '%s'", want, got)
-    }
+	if !strings.Contains(got, want) {
+		t.Errorf("The output does not contain the text: '%s' Got: '%s'", want, got)
+	}
 }
 
 func TestMonitoringCanBeCancelled(t *testing.T) {
-    presence := &Presence{}
-    buffer := &bytes.Buffer{}
-    scanner := &FakeScanner{}
-    stopChannel := make(chan bool)
+	presence := &Presence{}
+	buffer := &bytes.Buffer{}
+	scanner := &FakeScanner{}
+	stopChannel := make(chan bool)
 
-    go func() {
+	go func() {
 		time.Sleep(time.Second)
-        select {
-          default:
-            panic("Scan operation has not been cancelled. Dying.")
-        case <-stopChannel:
-            return
-        }
+		select {
+		default:
+			panic("Scan operation has not been cancelled. Dying.")
+		case <-stopChannel:
+			return
+		}
 	}()
 
-    cancel, done := presence.Scan(buffer, scanner)
-    cancel()
-    <-done
+	cancel, done := presence.Scan(buffer, scanner)
+	cancel()
+	<-done
 
-    close(stopChannel)
+	close(stopChannel)
 }
 
 func TestDeviceInsertIsDetected(t *testing.T) {
-    presence := &Presence{func(){}, func(){}}
-    insertEvent := SecurityTokenEvent{insert, "1050/407/511"}
-    buffer := &bytes.Buffer{}
-    scanner := &FakeScanner{make([]SecurityTokenEvent, 0), true}
-    scanner.add(insertEvent)
+	presence := &Presence{func() {}, func() {}}
+	insertEvent := SecurityTokenEvent{insert, "1050/407/511"}
+	buffer := &bytes.Buffer{}
+	scanner := &FakeScanner{make([]SecurityTokenEvent, 0), true}
+	scanner.add(insertEvent)
 
-    _, done := presence.Scan(buffer, scanner)
-    <-done
+	_, done := presence.Scan(buffer, scanner)
+	<-done
 
-    got := buffer.String()
-    want := "USB device inserted."
+	got := buffer.String()
+	want := "USB device inserted."
 
-    if !strings.Contains(got, want) {
-        t.Errorf("The output does not contain the text: '%s' Got: '%s'", want, got)
-    }
+	if !strings.Contains(got, want) {
+		t.Errorf("The output does not contain the text: '%s' Got: '%s'", want, got)
+	}
 }
 
 func TestDeviceEjectIsDetected(t *testing.T) {
-    presence := &Presence{func(){}, func(){}}
-    ejectEvent := SecurityTokenEvent{eject, "1050/407/511"}
-    buffer := &bytes.Buffer{}
-    scanner := &FakeScanner{make([]SecurityTokenEvent, 0), true}
-    scanner.add(ejectEvent)
+	presence := &Presence{func() {}, func() {}}
+	ejectEvent := SecurityTokenEvent{eject, "1050/407/511"}
+	buffer := &bytes.Buffer{}
+	scanner := &FakeScanner{make([]SecurityTokenEvent, 0), true}
+	scanner.add(ejectEvent)
 
-    _, done := presence.Scan(buffer, scanner)
-    <-done
+	_, done := presence.Scan(buffer, scanner)
+	<-done
 
-    got := buffer.String()
-    want := "USB device ejected."
+	got := buffer.String()
+	want := "USB device ejected."
 
-    if !strings.Contains(got, want) {
-        t.Errorf("The output does not contain the text: '%s' Got: '%s'", want, got)
-    }
+	if !strings.Contains(got, want) {
+		t.Errorf("The output does not contain the text: '%s' Got: '%s'", want, got)
+	}
 }

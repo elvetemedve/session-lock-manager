@@ -14,20 +14,27 @@ when it is inserted again.
 
 ## Development
 
+### Prerequisites
+
+  - Go 1.22 or newer
+  - a C compiler and `pkg-config` (the PAM and udev bindings use cgo)
+  - PAM and libudev development headers, e.g. `libpam0g-dev libudev-dev` on Debian/Ubuntu
+    or `pam-devel systemd-devel` on Fedora
+
 ### Building the application
 
-    go build github.com/elvetemedve/session-lock-manager
+    go build .
 
 ### Running tests
 
-    go test -v github.com/elvetemedve/session-lock-manager/device
-    go test -v github.com/elvetemedve/session-lock-manager/authentication
+    go test ./...
 
 ### Running the application
 
-    go run github.com/elvetemedve/session-lock-manager <service-name>
+    go run . <service-name>
 
-    where service name is the appropriate filename in the pam.d directory
+where `<service-name>` is the name of the appropriate file in the `/etc/pam.d` directory
+(see [Yubikey](#yubikey) below).
 
 ### Architecture
 

@@ -29,8 +29,7 @@ func Unlock() {
 func callDbusMethod(methodName string) error {
 	connection, error := dbus.SystemBus()
 	if error != nil {
-		fmt.Println(fmt.Sprintf("Failed to connectionect to session bus: %s", error))
-		return nil
+		return fmt.Errorf("failed to connectionect to session bus: %w", error)
 	}
 
 	object := connection.Object("org.freedesktop.login1", "/org/freedesktop/login1")

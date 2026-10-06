@@ -2,6 +2,8 @@ package device
 
 import (
 	"context"
+	"log"
+
 	"github.com/jochenvg/go-udev"
 )
 
@@ -19,7 +21,15 @@ func (udev *UdevScanner) Scan() (<-chan *SecurityTokenEvent, context.CancelFunc)
 	ctx, cancel := context.WithCancel(context.Background())
 
 	// Start monitor goroutine and get receive channel
-	channel, _ := monitor.DeviceChan(ctx)
+	channel, errorChannel, err := monitor.DeviceChan(ctx)
+	if err != nil {
+		log.Fatalf("Failed to start udev monitor: %s", err)
+	}
+	go func() {
+		for err := range errorChannel {
+			log.Printf("udev monitor error: %s", err)
+		}
+	}()
 
 	eventChannel := make(chan *SecurityTokenEvent)
 	go udev.readEvents(eventChannel, channel)

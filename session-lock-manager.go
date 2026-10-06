@@ -11,12 +11,13 @@ import (
 
 func main() {
 	serviceName := parseArguments()
-	scanner := &device.UdevScanner{&udev.Udev{}}
+	scanner := &device.UdevScanner{Udev: &udev.Udev{}}
 	presence := &device.Presence{
-		authentication.AuthenticateCurrentUserAction(serviceName, session.Unlock, func() {
+		OnInsert: authentication.AuthenticateCurrentUserAction(serviceName, session.Unlock, func() {
 			fmt.Fprintln(os.Stderr, "Authentication failed.")
 		}),
-		session.Lock}
+		OnEject: session.Lock,
+	}
 	_, done := presence.Scan(os.Stdout, scanner)
 	<-done
 }

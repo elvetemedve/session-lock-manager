@@ -19,7 +19,7 @@ func Lock() {
 func Unlock() {
 	error := callDbusMethod("UnlockSessions")
 	if error != nil {
-		fmt.Println(fmt.Sprintf("Failed to lock session: %s", error))
+		fmt.Println(fmt.Sprintf("Failed to unlock session: %s", error))
 		return
 	}
 
